@@ -1,15 +1,16 @@
 package com.boommanpro.springenumstrategypattern.module.report.enums;
 
-import java.util.Map;
-import java.util.Optional;
-
-import com.boommanpro.springenumstrategypattern.common.EnumTypeFlag;
+import com.boommanpro.springenumstrategypattern.common.EnumBeanMapUtil;
 import com.boommanpro.springenumstrategypattern.module.report.service.generatorreport.GeneratorReport;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
+
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * @author wangqimeng
@@ -17,7 +18,7 @@ import org.springframework.stereotype.Component;
  */
 @Slf4j
 @Getter
-public enum ProcessType implements GeneratorReport {
+public enum ProcessType implements GeneratorReport{
     /**
      * 查询报告
      */
@@ -34,6 +35,7 @@ public enum ProcessType implements GeneratorReport {
 
     private static Map<ProcessType, GeneratorReport> generatorReportMap;
 
+
     ProcessType(String name, String desc) {
         this.name = name;
         this.desc = desc;
@@ -45,20 +47,22 @@ public enum ProcessType implements GeneratorReport {
     }
 
     @Component
-    public static class ProcessTypeGeneratorReportConfig implements ApplicationContextAware {
+    public static class ProcessTypeGeneratorReportConfig implements ApplicationContextAware, InitializingBean {
 
         private ProcessTypeGeneratorReportConfig() {
         }
 
+        private ApplicationContext applicationContext;
+
         @Override
         public void setApplicationContext(ApplicationContext applicationContext) {
-            initGeneratorReportMap(applicationContext);
+            this.applicationContext=applicationContext;
         }
 
-        private void initGeneratorReportMap(ApplicationContext applicationContext) {
+        private void initGeneratorReportMap() {
             //获取所有关于GeneratorReport的bean
             Map<String, GeneratorReport> beanMap = applicationContext.getBeansOfType(GeneratorReport.class);
-            Map<ProcessType, GeneratorReport> result = EnumTypeFlag.beanMap2EnumMap(beanMap, ProcessTypeEnumFlag.class, ProcessTypeEnumFlag::value);
+            Map<ProcessType, GeneratorReport> result = EnumBeanMapUtil.beanMap2EnumMap(beanMap, ProcessTypeEnumFlag.class, ProcessTypeEnumFlag::value);
             setGeneratorReportMap(result);
         }
 
@@ -66,5 +70,9 @@ public enum ProcessType implements GeneratorReport {
             ProcessType.generatorReportMap = generatorReportMap;
         }
 
+        @Override
+        public void afterPropertiesSet() throws Exception {
+            initGeneratorReportMap();
+        }
     }
 }
