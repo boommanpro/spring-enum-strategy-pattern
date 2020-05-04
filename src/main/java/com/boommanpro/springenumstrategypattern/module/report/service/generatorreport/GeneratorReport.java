@@ -4,7 +4,7 @@ package com.boommanpro.springenumstrategypattern.module.report.service.generator
  * @author wangqimeng
  * @date 2020/5/4 18:07
  */
-public interface GeneratorReport {
+public interface GeneratorReport{
 
     /**
      * 根据dataId生成报告

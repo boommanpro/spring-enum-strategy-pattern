@@ -1,16 +1,14 @@
 package com.boommanpro.springenumstrategypattern.module.report.enums;
 
-import java.util.EnumMap;
 import java.util.Map;
 import java.util.Optional;
 
+import com.boommanpro.springenumstrategypattern.common.EnumTypeFlag;
 import com.boommanpro.springenumstrategypattern.module.report.service.generatorreport.GeneratorReport;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.stereotype.Component;
 
 /**
@@ -34,7 +32,7 @@ public enum ProcessType implements GeneratorReport {
 
     private final String desc;
 
-    private static EnumMap<ProcessType, GeneratorReport> generatorReportMap;
+    private static Map<ProcessType, GeneratorReport> generatorReportMap;
 
     ProcessType(String name, String desc) {
         this.name = name;
@@ -53,27 +51,18 @@ public enum ProcessType implements GeneratorReport {
         }
 
         @Override
-        public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        public void setApplicationContext(ApplicationContext applicationContext) {
             initGeneratorReportMap(applicationContext);
         }
 
         private void initGeneratorReportMap(ApplicationContext applicationContext) {
             //获取所有关于GeneratorReport的bean
             Map<String, GeneratorReport> beanMap = applicationContext.getBeansOfType(GeneratorReport.class);
-            EnumMap<ProcessType, GeneratorReport> result = new EnumMap<>(ProcessType.class);
-            beanMap.forEach((s, generatorReport) -> {
-                ProcessTypeEnumFlag annotation = AnnotationUtils.findAnnotation(generatorReport.getClass(), ProcessTypeEnumFlag.class);
-                if (annotation == null) {
-                    return;
-                }
-                ProcessType value = annotation.value();
-                result.put(value, generatorReport);
-            });
-
+            Map<ProcessType, GeneratorReport> result = EnumTypeFlag.beanMap2EnumMap(beanMap, ProcessTypeEnumFlag.class, ProcessTypeEnumFlag::value);
             setGeneratorReportMap(result);
         }
 
-        private static void setGeneratorReportMap(EnumMap<ProcessType, GeneratorReport> generatorReportMap) {
+        private static void setGeneratorReportMap(Map<ProcessType, GeneratorReport> generatorReportMap) {
             ProcessType.generatorReportMap = generatorReportMap;
         }
 
