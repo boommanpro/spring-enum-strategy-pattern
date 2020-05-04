@@ -10,6 +10,7 @@ import org.springframework.core.annotation.AnnotationUtils;
  * @author wangqimeng
  * @date 2020/5/4 20:47
  */
+@FunctionalInterface
 public interface EnumTypeFlag<E extends Enum<E>, A extends Annotation> {
 
     /**
@@ -31,7 +32,7 @@ public interface EnumTypeFlag<E extends Enum<E>, A extends Annotation> {
      * @return
      */
     static <E extends Enum<E>, I, A extends Annotation> Map<E, I> beanMap2EnumMap(Map<String, I> beanMap, Class<A> annotationType, EnumTypeFlag<E, A> enumTypeFlag) {
-        Map<E, I> result = new HashMap<>();
+        Map<E, I> result = new HashMap<>(beanMap.size());
         beanMap.forEach((s, bean) -> {
             A annotation = AnnotationUtils.findAnnotation(bean.getClass(), annotationType);
             if (annotation == null) {
